@@ -239,7 +239,7 @@ if (process.env.VCAP_SERVICES) {
 
     models: {
       connection: 'sailsPsql',
-      migrate: 'drop'
+      migrate: 'alter'
     },
     connections: {
       sailsPsql: {
