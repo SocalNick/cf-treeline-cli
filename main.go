@@ -155,7 +155,7 @@ func main() {
 }
 
 func npmInstalls() {
-	packages := []string{"connect-redis@1.4.5", "sails-postgresql", "socket.io-redis"}
+	packages := []string{"connect-redis@1.4.5", "sails-mysql", "socket.io-redis"}
 	for _, value := range packages {
 		npmSetup := exec.Command("npm", "install", value, "--save", "--save-exact")
 		npmSetup.Stdout = os.Stdout
@@ -182,7 +182,7 @@ func createServices(cliConnection plugin.CliConnection) {
 				}
 			}
 		}
-		if service.Name == "hackday-elephantsql" {
+		if service.Name == "hackday-cleardb" {
 			sqlFound = true
 			for _, app := range service.ApplicationNames {
 				if app == "hackday-nc" {
@@ -206,14 +206,14 @@ func createServices(cliConnection plugin.CliConnection) {
 		}
 	}
 	if !sqlFound {
-		_, err = cliConnection.CliCommand("cs", "elephantsql", "turtle", "hackday-elephantsql")
+		_, err = cliConnection.CliCommand("cs", "cleardb", "turtle", "hackday-cleardb")
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 	}
 	if !sqlBound {
-		_, err = cliConnection.CliCommand("bs", "hackday-nc", "hackday-elephantsql")
+		_, err = cliConnection.CliCommand("bs", "hackday-nc", "hackday-cleardb")
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -238,13 +238,17 @@ if (process.env.VCAP_SERVICES) {
      ***************************************************************************/
 
     models: {
-      connection: 'sailsPsql',
+      connection: 'sailsMySql',
       migrate: 'alter'
     },
     connections: {
-      sailsPsql: {
-        adapter: 'sails-postgresql',
-        url: vcapServices.elephantsql[0].credentials.uri
+      sailsMySql: {
+        adapter: 'sails-mysql',
+        host      : vcapServices.cleardb[0].credentials.hostname,
+        port      : 3306,
+        user      : vcapServices.cleardb[0].credentials.username,
+        password  : vcapServices.cleardb[0].credentials.password,
+        database  : vcapServices.cleardb[0].credentials.name
       }
     },
 
